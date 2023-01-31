@@ -1,6 +1,39 @@
+# Environment
+
+## KP-test version 2022-12-09 with working video
+
+##!pip install highway-env ##KP
+#!pip install --user git+https://github.com/eleurent/highway-env
+##KP - install newer version than published - clone from that
+#!pip install git+https://github.com/USERNAME/highway-env
+import gym
+import highway_env
+
+# Agent
+##KP !pip install git+https://github.com/eleurent/rl-agents
+#!pip install --user git+https://github.com/eleurent/rl-agents
+#!pip install moviepy ##KP - used for playing videos
+#from moviepy.editor import *  #KP - gives error
+
+# Visualisation utils
+import sys
+#%load_ext tensorboard
+#!pip install tensorboardx gym pyvirtualdisplay
+#!apt-get install -y xvfb python-opengl ffmpeg      #gets an error
+#!git clone https://github.com/eleurent/highway-env.git
+sys.path.insert(0, '/content/highway-env/scripts/')
+# from utils import record_videos,show_videos
+#!pip install imageio-ffmpeg #KP - mpeg4 encoder needed for play
+import imageio_ffmpeg
+#from moviepy.video.io.ImageSequenceClip import ImageSequenceClip ##KP
+
 from typing import Dict, Text
 
 import numpy as np
+import gym
+import highway_env
+from matplotlib import pyplot as plt
+#%matplotlib inline
 
 from highway_env import utils
 from highway_env.envs.common.abstract import AbstractEnv
@@ -145,3 +178,59 @@ class HighwayEnvFast(HighwayEnv):
         for vehicle in self.road.vehicles:
             if vehicle not in self.controlled_vehicles:
                 vehicle.check_collisions = False
+"""
+env = gym.make('highway-v0')
+env.reset()
+for _ in range(3):
+    action = env.action_type.actions_indexes["IDLE"]
+    obs, reward, done, info = env.step(action)
+    env.render()
+
+plt.imshow(env.render(mode="rgb_array"))
+plt.show()
+"""
+
+
+# from rl_agents.trainer.evaluation import Evaluation
+# from rl_agents.agents.common.factory import load_agent, load_environment
+
+# Get the environment and agent configurations from the rl-agents repository
+#!git clone https://github.com/eleurent/rl-agents.git
+# %cd /content/rl-agents/scripts/
+env_config = 'configs/HighwayEnv/env.json'
+agent_config = 'configs/HighwayEnv/agents/DQNAgent/dqn.json'
+
+# env = load_environment(env_config)
+import pprint
+from matplotlib import pyplot as plt
+env.config["lane_change_reward"] = 0
+env.config["vehicles_count"] = 0
+#env.config['reward_speed_range'] = [0, 100]
+env.config["lanes_count"] = 2
+env.config["initial_lane_id"] = 0
+pprint.pprint(env.config)
+pprint.pprint(agent_config)
+
+env.reset()
+plt.imshow(env.render(mode="rgb_array"))
+plt.show()
+
+agent = load_agent(agent_config, env)
+evaluation = Evaluation(env, agent, num_episodes=10, display_env=False)
+print(f"Ready to train {agent} on {env}")
+
+
+
+# %tensorboard --logdir "{evaluation.directory}"
+evaluation.train()
+
+
+
+#env = load_environment(env_config)
+env.configure({"offscreen_rendering": True})
+env.render(mode="rgb_array")
+##env = record_videos(env)
+agent = load_agent(agent_config, env)
+evaluation = Evaluation(env, agent, num_episodes=3, recover=True)
+evaluation.test()
+show_videos(evaluation.run_directory)
