@@ -59,6 +59,9 @@ The HighwayEnv class is creating an enviroment for the simulation and also the c
 all methods included in this class control the different parameters in the "config() -method" and the calculations of them.
 These paramaters are the one to change to identify the optimum values that could bring a good learning rate and learned result, 
 in other terms a high performance of the RL-model for autonomous driving.
+
+A more reasonable value like "-1" for "lane_change_reward" will give a better performance than "-100". 
+"-100" will give the result that the ego car starts hitting the agents (other cars) more frequently.
 """
 class HighwayEnv(AbstractEnv):
     """
